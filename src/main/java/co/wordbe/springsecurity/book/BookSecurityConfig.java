@@ -1,18 +1,24 @@
 package co.wordbe.springsecurity.book;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,18 +26,35 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@Configuration
 @EnableWebSecurity
+@Order(1)
 public class BookSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserDetailsService userDetailsService;
 
     @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication().withUser("user").password("{noop}1234").roles("USER");
+        auth.inMemoryAuthentication().withUser("sys").password("{noop}1234").roles("SYS", "USER");
+        auth.inMemoryAuthentication().withUser("admin").password("{noop}1234").roles("ADMIN", "SYS", "USER");
+    }
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
+
         http
                 .authorizeRequests()
+                .antMatchers("/").permitAll()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/user").hasRole("USER")
+                .antMatchers("/admin/pay").hasRole("ADMIN")
+                .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
                 .anyRequest().authenticated()
+
+        .and().exceptionHandling()
+//                .authenticationEntryPoint(authenticationEntryPoint()) // 인증 실패 처리
+                .accessDeniedHandler(accessDeniedHandler()) // 인가 실패 처리
 
         .and().formLogin() // Form 로그인 인증 기능
 //                .loginPage("/loginPage") // 사용자 정의 로그인 페이지
@@ -58,7 +81,7 @@ public class BookSecurityConfig extends WebSecurityConfigurerAdapter {
                 .userDetailsService(userDetailsService) // 사용자 계정 조회시 필요
 
         .and().sessionManagement() // 세션 관리 기능 작동
-                .invalidSessionUrl("/invalid") // 세션이 유효하지 않을 때 이동할 페이지
+//                .invalidSessionUrl("/invalid") // 세션이 유효하지 않을 때 이동할 페이지
                 .maximumSessions(1) // 최대 허용 가능 세션, -1이면 무제한 로그인 세션 허용
                 .maxSessionsPreventsLogin(true) // 동시 로그인 차단, false이면 기존 세션 만료(default)
                 .expiredUrl("/expired") // 세션이 만료된 경우 이동할 페이
@@ -77,7 +100,28 @@ public class BookSecurityConfig extends WebSecurityConfigurerAdapter {
 //        SessionCreationPolicy.ALWAYS // 항상 세션 생성
 //        SessionCreationPolicy.NEVER // 생성하지 않지만, 이미 존재하면 사용
 //        SessionCreationPolicy.STATELESS // 생성하지도 않고, 존재해도 사용하지 않음 (JWT 방식 등)
+
     }
+
+    private AuthenticationEntryPoint authenticationEntryPoint() {
+        return new AuthenticationEntryPoint() {
+            @Override
+            public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+                httpServletResponse.sendRedirect("/login");
+            }
+        };
+    }
+
+    private AccessDeniedHandler accessDeniedHandler() {
+        return new AccessDeniedHandler() {
+            @Override
+            public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
+                httpServletResponse.sendRedirect("/denied");
+            }
+        };
+    }
+
+
 
     private LogoutHandler logoutHandler() {
         return new LogoutHandler() {
@@ -102,8 +146,10 @@ public class BookSecurityConfig extends WebSecurityConfigurerAdapter {
         return new AuthenticationSuccessHandler() {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                System.out.println("authentication " + authentication.getCredentials());
-                response.sendRedirect("/");
+                HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+                SavedRequest savedRequest = requestCache.getRequest(request, response);
+                String redirectUrl = savedRequest.getRedirectUrl();
+                response.sendRedirect(redirectUrl);
             }
         };
     }
