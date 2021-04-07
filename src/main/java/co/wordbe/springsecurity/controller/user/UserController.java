@@ -1,4 +1,4 @@
-package co.wordbe.springsecurity.controller;
+package co.wordbe.springsecurity.controller.user;
 
 import co.wordbe.springsecurity.domain.Account;
 import co.wordbe.springsecurity.domain.AccountDto;
