@@ -1,5 +1,7 @@
 package co.wordbe.springsecurity.security.config;
 
+import co.wordbe.springsecurity.security.handler.CustomAuthenticationFailureHandler;
+import co.wordbe.springsecurity.security.handler.CustomAuthenticationSuccessHandler;
 import co.wordbe.springsecurity.security.provider.FormAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final FormAuthenticationProvider formAuthenticationProvider;
     private final AuthenticationDetailsSource authenticationDetailsSource;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -34,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/", "/users").permitAll()
+                .antMatchers("/", "/users", "/login*").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/message").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
@@ -45,6 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl("/login_proc")
                 .authenticationDetailsSource(authenticationDetailsSource)
                 .defaultSuccessUrl("/")
+                .successHandler(customAuthenticationSuccessHandler)
+                .failureHandler(customAuthenticationFailureHandler)
                 .permitAll()
         ;
     }
