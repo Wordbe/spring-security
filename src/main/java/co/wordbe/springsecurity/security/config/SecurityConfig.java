@@ -1,5 +1,7 @@
 package co.wordbe.springsecurity.security.config;
 
+import co.wordbe.springsecurity.security.common.FormAuthenticationDetailsSource;
+import co.wordbe.springsecurity.security.handler.CustomAccessDeniedHandler;
 import co.wordbe.springsecurity.security.handler.CustomAuthenticationFailureHandler;
 import co.wordbe.springsecurity.security.handler.CustomAuthenticationSuccessHandler;
 import co.wordbe.springsecurity.security.provider.FormAuthenticationProvider;
@@ -19,9 +21,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final FormAuthenticationProvider formAuthenticationProvider;
-    private final AuthenticationDetailsSource authenticationDetailsSource;
+    private final FormAuthenticationDetailsSource formAuthenticationDetailsSource;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -40,18 +43,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/", "/users", "/login*").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
-                .antMatchers("/message").hasRole("MANAGER")
+                .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated()
         .and()
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login_proc")
-                .authenticationDetailsSource(authenticationDetailsSource)
                 .defaultSuccessUrl("/")
+                .authenticationDetailsSource(formAuthenticationDetailsSource)
                 .successHandler(customAuthenticationSuccessHandler)
                 .failureHandler(customAuthenticationFailureHandler)
                 .permitAll()
+        .and()
+            .exceptionHandling()
+            .accessDeniedHandler(customAccessDeniedHandler)
         ;
     }
 }
