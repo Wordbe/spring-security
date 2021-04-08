@@ -1,23 +1,21 @@
 package co.wordbe.springsecurity.security.provider;
 
 import co.wordbe.springsecurity.security.service.AccountContext;
+import co.wordbe.springsecurity.security.service.CustomUserDetailsService;
 import co.wordbe.springsecurity.security.token.AjaxAuthenticationToken;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
-@Component
 public class AjaxAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    CustomUserDetailsService customUserDetailsService;
+    @Autowired PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -26,7 +24,7 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String password = (String) authentication.getCredentials();
 
-        AccountContext accountContext = (AccountContext) userDetailsService.loadUserByUsername(username);
+        AccountContext accountContext = (AccountContext) customUserDetailsService.loadUserByUsername(username);
 
         if (!passwordEncoder.matches(password, accountContext.getAccount().getPassword())) {
             throw new BadCredentialsException("Invalid Password");

@@ -1,7 +1,6 @@
 package co.wordbe.springsecurity.security.config;
 
 import co.wordbe.springsecurity.security.common.FormAuthenticationDetailsSource;
-import co.wordbe.springsecurity.security.filter.AjaxLoginProcessingFilter;
 import co.wordbe.springsecurity.security.handler.CustomAccessDeniedHandler;
 import co.wordbe.springsecurity.security.handler.CustomAuthenticationFailureHandler;
 import co.wordbe.springsecurity.security.handler.CustomAuthenticationSuccessHandler;
@@ -9,13 +8,11 @@ import co.wordbe.springsecurity.security.provider.FormAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -62,4 +59,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .accessDeniedHandler(customAccessDeniedHandler)
         ;
     }
+
+
 }
