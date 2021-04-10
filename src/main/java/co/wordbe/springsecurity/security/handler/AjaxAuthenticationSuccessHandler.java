@@ -1,6 +1,6 @@
 package co.wordbe.springsecurity.security.handler;
 
-import co.wordbe.springsecurity.domain.Account;
+import co.wordbe.springsecurity.domain.entity.Account;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

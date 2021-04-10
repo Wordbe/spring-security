@@ -1,6 +1,6 @@
 package co.wordbe.springsecurity.service.impl;
 
-import co.wordbe.springsecurity.domain.Account;
+import co.wordbe.springsecurity.domain.entity.Account;
 import co.wordbe.springsecurity.repository.UserRepository;
 import co.wordbe.springsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package co.wordbe.springsecurity.security.service;
 
-import co.wordbe.springsecurity.domain.Account;
+import co.wordbe.springsecurity.domain.entity.Account;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;

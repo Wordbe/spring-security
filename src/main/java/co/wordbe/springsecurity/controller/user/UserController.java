@@ -1,7 +1,7 @@
 package co.wordbe.springsecurity.controller.user;
 
-import co.wordbe.springsecurity.domain.Account;
-import co.wordbe.springsecurity.domain.AccountDto;
+import co.wordbe.springsecurity.domain.entity.Account;
+import co.wordbe.springsecurity.domain.dto.AccountDto;
 import co.wordbe.springsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

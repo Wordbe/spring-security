@@ -1,6 +1,6 @@
 package co.wordbe.springsecurity.security.filter;
 
-import co.wordbe.springsecurity.domain.AccountDto;
+import co.wordbe.springsecurity.domain.dto.AccountDto;
 import co.wordbe.springsecurity.security.token.AjaxAuthenticationToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.Authentication;

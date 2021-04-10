@@ -1,6 +1,6 @@
 package co.wordbe.springsecurity.security.service;
 
-import co.wordbe.springsecurity.domain.Account;
+import co.wordbe.springsecurity.domain.entity.Account;
 import co.wordbe.springsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,8 +10,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -23,13 +24,19 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Account account = userRepository.findByUsername(username);
         if (account == null) {
-            throw new UsernameNotFoundException("UsernameNotFoundException");
+            throw new UsernameNotFoundException("username 이 없습니다: " + username );
         }
 
-        List<GrantedAuthority> roles =  new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority(account.getRole()));
-        AccountContext accountContext = new AccountContext(account, roles);
+        Set<String> userRoles = account.getUserRoles()
+                .stream()
+                .map(userRole -> userRole.getRoleName())
+                .collect(Collectors.toSet());
 
-        return accountContext;
+        List<GrantedAuthority> collect = userRoles
+                .stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        return new AccountContext(account, collect);
     }
 }
