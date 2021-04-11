@@ -7,6 +7,7 @@ import co.wordbe.springsecurity.security.handler.CustomAuthenticationFailureHand
 import co.wordbe.springsecurity.security.handler.CustomAuthenticationSuccessHandler;
 import co.wordbe.springsecurity.security.metadatasource.UrlFilterInvocationSecurityMetadataSource;
 import co.wordbe.springsecurity.security.provider.FormAuthenticationProvider;
+import co.wordbe.springsecurity.service.SecurityResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -35,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final UrlResourcesMapFactoryBean urlResourcesMapFactoryBean;
+    private final SecurityResourceService securityResourceService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -85,7 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
-        return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean.getObject());
+        return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean.getObject(), securityResourceService);
     }
 
     private AccessDecisionManager affirmativeBased() {

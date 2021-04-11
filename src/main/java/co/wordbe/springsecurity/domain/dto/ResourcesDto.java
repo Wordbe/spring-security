@@ -12,9 +12,11 @@ import java.util.Set;
 @AllArgsConstructor @NoArgsConstructor @Builder
 public class ResourcesDto {
 
-    private Long id;
+    private String id;
     private String resourceName;
+    private String httpMethod;
     private Integer orderNum;
     private String resourceType;
+    private String roleName;
     private Set<Role> roleSet;
 }

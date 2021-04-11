@@ -1,6 +1,8 @@
 package co.wordbe.springsecurity.security.metadatasource;
 
 import co.wordbe.springsecurity.security.factory.UrlResourcesMapFactoryBean;
+import co.wordbe.springsecurity.service.SecurityResourceService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
@@ -12,9 +14,12 @@ import java.util.*;
 public class UrlFilterInvocationSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
     private LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap;
+    private SecurityResourceService securityResourceService;
 
-    public UrlFilterInvocationSecurityMetadataSource(LinkedHashMap<RequestMatcher, List<ConfigAttribute>> resourceMap) {
+    public UrlFilterInvocationSecurityMetadataSource(LinkedHashMap<RequestMatcher, List<ConfigAttribute>> resourceMap,
+                                                     SecurityResourceService securityResourceService) {
         this.requestMap = resourceMap;
+        this.securityResourceService = securityResourceService;
     }
 
     @Override
@@ -50,5 +55,17 @@ public class UrlFilterInvocationSecurityMetadataSource implements FilterInvocati
     @Override
     public boolean supports(Class<?> aClass) {
         return FilterInvocation.class.isAssignableFrom(aClass);
+    }
+
+    public void reload() {
+        LinkedHashMap<RequestMatcher, List<ConfigAttribute>> reloadedMap = securityResourceService.getResourceList();
+        Iterator<Map.Entry<RequestMatcher, List<ConfigAttribute>>> iterator = reloadedMap.entrySet().iterator();
+
+        requestMap.clear();
+
+        while(iterator.hasNext()) {
+            Map.Entry<RequestMatcher, List<ConfigAttribute>> entry = iterator.next();
+            requestMap.put(entry.getKey(), entry.getValue());
+        }
     }
 }
