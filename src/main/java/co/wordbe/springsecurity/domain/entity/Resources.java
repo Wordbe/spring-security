@@ -22,6 +22,9 @@ public class Resources implements Serializable {
     @Column(name = "resource_name")
     private String resourceName;
 
+    @Column(name = "http_method")
+    private String httpMethod;
+
     @Column(name = "order_num")
     private int orderNum;
 

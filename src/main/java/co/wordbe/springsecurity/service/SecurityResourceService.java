@@ -20,16 +20,16 @@ public class SecurityResourceService {
     private final ResourcesRepository resourcesRepository;
 
     public LinkedHashMap<RequestMatcher, List<ConfigAttribute>> getResourceList() {
-        LinkedHashMap<RequestMatcher, List<ConfigAttribute>> result = new LinkedHashMap<>();
         List<Resources> resourcesList = resourcesRepository.findAllResources();
 
+        LinkedHashMap<RequestMatcher, List<ConfigAttribute>> result = new LinkedHashMap<>();
         // 모든 자원(resource)마다
         resourcesList.forEach(re -> {
             List<ConfigAttribute> configAttributesList = new ArrayList<>();
 
             // 자원에 1:N 으로 매칭된 role 마다
             re.getRoleSet().forEach(role -> {
-                configAttributesList.add(new SecurityConfig(role.getRoleDesc()));
+                configAttributesList.add(new SecurityConfig(role.getRoleName()));
             });
             result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributesList);
         });

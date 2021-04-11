@@ -1,6 +1,7 @@
 package co.wordbe.springsecurity.security.config;
 
 import co.wordbe.springsecurity.security.common.FormAuthenticationDetailsSource;
+import co.wordbe.springsecurity.security.factory.UrlResourcesMapFactoryBean;
 import co.wordbe.springsecurity.security.handler.CustomAccessDeniedHandler;
 import co.wordbe.springsecurity.security.handler.CustomAuthenticationFailureHandler;
 import co.wordbe.springsecurity.security.handler.CustomAuthenticationSuccessHandler;
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 import java.util.Arrays;
@@ -32,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final UrlFilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource;
+    private final UrlResourcesMapFactoryBean urlResourcesMapFactoryBean;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -67,6 +69,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .exceptionHandling()
             .accessDeniedHandler(customAccessDeniedHandler)
         .and()
+            // 사용자 정의: DB 에 저장된 권한 정보로 인가 처리
             .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
         ;
     }
@@ -74,15 +77,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
         FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
-        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource);
+        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
         filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
         filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
         return filterSecurityInterceptor;
     }
 
+    @Bean
+    public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
+        return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean.getObject());
+    }
+
     private AccessDecisionManager affirmativeBased() {
         return new AffirmativeBased(Arrays.asList(new RoleVoter()));
     }
-
 
 }
