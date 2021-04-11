@@ -1,6 +1,8 @@
 package co.wordbe.springsecurity.service;
 
+import co.wordbe.springsecurity.domain.entity.AccessIp;
 import co.wordbe.springsecurity.domain.entity.Resources;
+import co.wordbe.springsecurity.repository.AccessIpRepository;
 import co.wordbe.springsecurity.repository.ResourcesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.ConfigAttribute;
@@ -12,12 +14,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class SecurityResourceService {
 
     private final ResourcesRepository resourcesRepository;
+    private final AccessIpRepository accessIpRepository;
 
     public LinkedHashMap<RequestMatcher, List<ConfigAttribute>> getResourceList() {
         List<Resources> resourcesList = resourcesRepository.findAllResources();
@@ -34,5 +38,12 @@ public class SecurityResourceService {
             result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributesList);
         });
         return result;
+    }
+
+    public List<String> getAccessIpList() {
+        List<String> accessIpList = accessIpRepository.findAll().stream()
+                .map(AccessIp::getIpAddress)
+                .collect(Collectors.toList());
+        return accessIpList;
     }
 }
