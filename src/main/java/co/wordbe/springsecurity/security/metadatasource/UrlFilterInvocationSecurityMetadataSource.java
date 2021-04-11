@@ -1,8 +1,6 @@
 package co.wordbe.springsecurity.security.metadatasource;
 
-import co.wordbe.springsecurity.security.factory.UrlResourcesMapFactoryBean;
 import co.wordbe.springsecurity.service.SecurityResourceService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
