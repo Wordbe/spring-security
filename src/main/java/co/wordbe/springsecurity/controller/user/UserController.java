@@ -5,10 +5,14 @@ import co.wordbe.springsecurity.domain.dto.AccountDto;
 import co.wordbe.springsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.security.Principal;
 
 @RequiredArgsConstructor
 @Controller
@@ -35,5 +39,11 @@ public class UserController {
         userService.createUser(account);
 
         return "redirect:/";
+    }
+
+    @GetMapping("/order")
+    public String order() {
+        userService.order();
+        return "user/mypage";
     }
 }
